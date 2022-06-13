@@ -31,7 +31,7 @@ class Match {
     required this.score,
   });
 
-  final String date;
+  final DateTime date;
   final List<String> players;
   final String score;
 
@@ -40,7 +40,7 @@ class Match {
   String toRawJson() => json.encode(toJson());
 
   factory Match.fromJson(Map<String, dynamic> json) => Match(
-    date: json["date"],
+    date: DateTime.parse(json["date"]),
     players: List<String>.from(json["players"].map((x) => x)),
     score: json["score"],
   );
@@ -59,7 +59,7 @@ class Player {
   });
 
   final String name;
-  final String added;
+  final DateTime added;
 
   factory Player.fromRawJson(String str) => Player.fromJson(json.decode(str));
 
@@ -67,7 +67,7 @@ class Player {
 
   factory Player.fromJson(Map<String, dynamic> json) => Player(
     name: json["name"],
-    added: json["added"],
+    added: DateTime.parse(json["added"]),
   );
 
   Map<String, dynamic> toJson() => {
