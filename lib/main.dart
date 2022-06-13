@@ -1,3 +1,4 @@
+import 'package:badminton_tracker/types.dart';
 import 'package:badminton_tracker/widgets/MWCard.dart';
 import 'package:flutter/material.dart';
 
@@ -49,17 +50,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  final BadmintonData badmintonData = BadmintonData(players: [], matches: [Match(date: DateTime.now(),players: ["Mzrokz","Mdrokz"],score: "21-19")]);
+
+  void addMatch() {
   }
 
   @override
@@ -70,9 +64,11 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: MWCard(),
+      body: ListView.builder(itemCount: badmintonData.matches.length,itemBuilder: (context,i) {
+          return MWCard(matchData: badmintonData.matches[i]);
+      }),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: addMatch,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
