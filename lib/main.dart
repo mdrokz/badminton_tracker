@@ -1,6 +1,7 @@
 import 'package:badminton_tracker/httpClient.dart';
 import 'package:badminton_tracker/types/badminton.dart';
 import 'package:badminton_tracker/widgets.dart';
+import 'package:badminton_tracker/widgets/MWCard.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -14,11 +15,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Badminton Tracker',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Badminton Tracker'),
     );
   }
 }
@@ -170,7 +171,15 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: addMatch,
         tooltip: 'Add Match',
-        child: const Icon(Icons.add),
+      body: ListView.builder(
+          itemCount: badmintonData.matches.length,
+          itemBuilder: (context, i) {
+            return MWCard(
+              matchData: badmintonData.matches[i],
+              onDeletePressed: () {},
+              onEditPressed: () {},
+            );
+          }),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
