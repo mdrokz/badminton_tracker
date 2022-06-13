@@ -3,20 +3,28 @@ import 'package:nb_utils/nb_utils.dart';
 // import 'package:prokit_flutter/main/utils/Lipsum.dart' as lipsum;
 
 import '../utils/AppWidget.dart';
+import '../utils/Icons.dart';
+
+import '../types.dart';
 
 class MWCard extends StatefulWidget {
-  static String tag = '/MWCardScreen';
 
-  const MWCard({Key? key}) : super(key: key);
+  final Match matchData;
+
+  const MWCard({Key? key,required this.matchData}) : super(key: key);
 
   @override
   MWCardState createState() => MWCardState();
 }
 
 class MWCardState extends State<MWCard> {
+  late Match matchData;
   @override
   void initState() {
     super.initState();
+    setState(() {
+      matchData = widget.matchData;
+    });
     init();
   }
 
@@ -47,23 +55,23 @@ class MWCardState extends State<MWCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.sports_tennis, color: Colors.amber, size: 40),
+                const Icon(CustomIcons.badminton_icon, color: Colors.blue, size: 40),
                 8.height,
-                Text('Padawan Collector', style: boldTextStyle(size: 20)),
+                Text("${matchData.date.day} / ${matchData.date.month} / ${matchData.date.year}", style: boldTextStyle(size: 20)),
                 8.height,
-                Text('Collect 10 Zambezi Cards', style: secondaryTextStyle()),
+                Text("${matchData.date.hour} : ${matchData.date.minute}" , style: secondaryTextStyle()),
                 8.height,
                 TextIcon(
                   edgeInsets: const EdgeInsets.only(left: 0, right: 8, bottom: 4, top: 4),
-                  prefix: const Icon(Icons.call, size: 14),
-                  text: "+91 8657458214",
+                  prefix: const Icon(Icons.person_sharp, size: 14),
+                  text: matchData.players.join(" VS "),
                   textStyle: primaryTextStyle(size: 14),
                 ),
                 TextIcon(
                   edgeInsets: const EdgeInsets.only(left: 0, right: 8, bottom: 4, top: 4),
-                  prefix: const Icon(Icons.web, size: 14),
-                  text: "WWW.COMPANY.COM",
-                  textStyle: primaryTextStyle(size: 14),
+                  prefix: const Icon(Icons.scoreboard, size: 16),
+                  text: matchData.score,
+                  textStyle: primaryTextStyle(size: 20),
                 ),
               ],
             ),
@@ -71,11 +79,11 @@ class MWCardState extends State<MWCard> {
           Container(
             width: 90,
             decoration: const BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(16),
-                bottomRight: Radius.circular(16),
-              ),
-              color: Colors.amber,
+              // borderRadius: BorderRadius.only(
+              //   topRight: Radius.circular(16),
+              //   bottomRight: Radius.circular(16),
+              // ),
+              color: Colors.blueAccent,
             ),
           )
         ],
