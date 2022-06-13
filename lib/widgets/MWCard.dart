@@ -8,17 +8,25 @@ import '../utils/Icons.dart';
 import '../types.dart';
 
 class MWCard extends StatefulWidget {
-
   final Match matchData;
 
-  const MWCard({Key? key,required this.matchData}) : super(key: key);
+  final VoidCallback? onEditPressed;
+
+  final VoidCallback? onDeletePressed;
+
+  const MWCard(
+      {Key? key,
+      required this.matchData,
+      required this.onEditPressed,
+      required this.onDeletePressed})
+      : super(key: key);
 
   @override
   MWCardState createState() => MWCardState();
 }
 
-class MWCardState extends State<MWCard> {
-  late Match matchData;
+class MWCardState extends State<MWCard> with SingleTickerProviderStateMixin {
+  late final Match matchData;
   @override
   void initState() {
     super.initState();
@@ -40,7 +48,7 @@ class MWCardState extends State<MWCard> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 210,
+      height: 195,
       child: Row(
         children: [
           Container(
@@ -55,20 +63,26 @@ class MWCardState extends State<MWCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(CustomIcons.badminton_icon, color: Colors.blue, size: 40),
+                const Icon(CustomIcons.badminton_icon,
+                    color: Colors.blue, size: 40),
                 8.height,
-                Text("${matchData.date.day} / ${matchData.date.month} / ${matchData.date.year}", style: boldTextStyle(size: 20)),
+                Text(
+                    "${matchData.date.day} / ${matchData.date.month} / ${matchData.date.year}",
+                    style: boldTextStyle(size: 20)),
                 8.height,
-                Text("${matchData.date.hour} : ${matchData.date.minute}" , style: secondaryTextStyle()),
+                Text("${matchData.date.hour} : ${matchData.date.minute}",
+                    style: secondaryTextStyle()),
                 8.height,
                 TextIcon(
-                  edgeInsets: const EdgeInsets.only(left: 0, right: 8, bottom: 4, top: 4),
-                  prefix: const Icon(Icons.person_sharp, size: 14),
+                  edgeInsets: const EdgeInsets.only(
+                      left: 0, right: 8, bottom: 4, top: 4),
+                  prefix: const Icon(Icons.person_sharp, size: 20),
                   text: matchData.players.join(" VS "),
                   textStyle: primaryTextStyle(size: 14),
                 ),
                 TextIcon(
-                  edgeInsets: const EdgeInsets.only(left: 0, right: 8, bottom: 4, top: 4),
+                  edgeInsets: const EdgeInsets.only(
+                      left: 0, right: 8, bottom: 4, top: 4),
                   prefix: const Icon(Icons.scoreboard, size: 16),
                   text: matchData.score,
                   textStyle: primaryTextStyle(size: 20),
@@ -77,7 +91,7 @@ class MWCardState extends State<MWCard> {
             ),
           ).expand(),
           Container(
-            width: 90,
+            width: 60,
             decoration: const BoxDecoration(
               // borderRadius: BorderRadius.only(
               //   topRight: Radius.circular(16),
@@ -85,10 +99,30 @@ class MWCardState extends State<MWCard> {
               // ),
               color: Colors.blueAccent,
             ),
+            child: Column(
+              children: [
+                IconButton(
+                  onPressed: widget.onEditPressed,
+                  icon: const Icon(
+                    Icons.edit,
+                    size: 30,
+                  ),
+                  padding: const EdgeInsets.fromLTRB(0, 25, 0, 0),
+                ),
+                const Divider(
+                  height: 60,
+                ),
+                IconButton(
+                    onPressed: widget.onDeletePressed,
+                    icon: const Icon(
+                      Icons.delete_forever,
+                      size: 30,
+                    )),
+              ],
+            ),
           )
         ],
       ),
     );
   }
-
 }
