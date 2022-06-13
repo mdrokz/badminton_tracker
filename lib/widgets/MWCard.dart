@@ -5,7 +5,7 @@ import 'package:nb_utils/nb_utils.dart';
 import '../utils/AppWidget.dart';
 import '../utils/Icons.dart';
 
-import '../types.dart';
+import '../types/badminton.dart';
 
 class MWCard extends StatefulWidget {
   final Match matchData;

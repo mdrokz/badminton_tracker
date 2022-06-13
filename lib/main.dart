@@ -163,23 +163,19 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[],
-        ),
+        child: ListView.builder(
+            itemCount: badmintonData.matches.length,
+            itemBuilder: (context, i) {
+              return MWCard(
+                matchData: badmintonData.matches[i],
+                onDeletePressed: () {},
+                onEditPressed: () {},
+              );
+            }),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: addMatch,
         tooltip: 'Add Match',
-      body: ListView.builder(
-          itemCount: badmintonData.matches.length,
-          itemBuilder: (context, i) {
-            return MWCard(
-              matchData: badmintonData.matches[i],
-              onDeletePressed: () {},
-              onEditPressed: () {},
-            );
-          }),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
