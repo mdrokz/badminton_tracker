@@ -46,7 +46,7 @@ class Match {
   );
 
   Map<String, dynamic> toJson() => {
-    "date": date,
+    "date": date.toString(),
     "players": List<dynamic>.from(players.map((x) => x)),
     "score": score,
   };
@@ -72,6 +72,12 @@ class Player {
 
   Map<String, dynamic> toJson() => {
     "name": name,
-    "added": added,
+    "added": added.toString(),
   };
+}
+
+extension Parser on String {
+  BadmintonData parseBadmintonData() {
+    return BadmintonData.fromRawJson(this);
+  }
 }
