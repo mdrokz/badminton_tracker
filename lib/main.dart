@@ -50,11 +50,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final BadmintonData badmintonData = BadmintonData(players: [], matches: [
+    Match(date: DateTime.now(), players: ["Mzrokz", "Mdrokz"], score: "21-19")
+  ]);
 
-  final BadmintonData badmintonData = BadmintonData(players: [], matches: [Match(date: DateTime.now(),players: ["Mzrokz","Mdrokz"],score: "21-19")]);
-
-  void addMatch() {
-  }
+  void addMatch() {}
 
   @override
   Widget build(BuildContext context) {
@@ -64,9 +64,15 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: ListView.builder(itemCount: badmintonData.matches.length,itemBuilder: (context,i) {
-          return MWCard(matchData: badmintonData.matches[i]);
-      }),
+      body: ListView.builder(
+          itemCount: badmintonData.matches.length,
+          itemBuilder: (context, i) {
+            return MWCard(
+              matchData: badmintonData.matches[i],
+              onDeletePressed: () {},
+              onEditPressed: () {},
+            );
+          }),
       floatingActionButton: FloatingActionButton(
         onPressed: addMatch,
         tooltip: 'Increment',
