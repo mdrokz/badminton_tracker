@@ -1,4 +1,6 @@
-import 'package:badminton_tracker/types.dart';
+import 'package:badminton_tracker/httpClient.dart';
+import 'package:badminton_tracker/types/badminton.dart';
+import 'package:badminton_tracker/widgets.dart';
 import 'package:badminton_tracker/widgets/MWCard.dart';
 import 'package:flutter/material.dart';
 
@@ -15,15 +17,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Badminton Tracker',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'Badminton Tracker'),
@@ -34,15 +27,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -50,20 +34,143 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final BadmintonData badmintonData = BadmintonData(players: [], matches: [
-    Match(date: DateTime.now(), players: ["Mzrokz", "Mdrokz"], score: "21-19")
-  ]);
+  late final BadmintonData badmintonData;
+  String? playerName;
+  String? secondPlayerName;
 
-  void addMatch() {}
+  final playerScore = TextEditingController();
+  final secondPlayerScore = TextEditingController();
+
+  Future<void> init() async {
+    final data = await getBadmintonData();
+    setState(() {
+      badmintonData = data;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    init();
+  }
+
+  void saveMatchData() async {
+    setState(() {
+      final p = playerName;
+      final p2 = secondPlayerName;
+
+      if (p != null && p2 != null) {
+        badmintonData.matches.add(Match(
+            date: DateTime.now(),
+            players: [p, p2],
+            score:
+                "${playerScore.value.text} - ${secondPlayerScore.value.text}"));
+      }
+    });
+    await updateBadmintonData(badmintonData);
+    if(!mounted) return;
+    Navigator.of(context).pop();
+  }
+
+  void addMatch() {
+    showDialog(
+        context: context,
+        builder: (bc) {
+          return AlertDialog(
+            title: const Text("Add new match"),
+            content: SizedBox(
+              height: 500,
+              child: Column(
+                children: [
+                  FormField(builder: (state) {
+                    final items = badmintonData.players
+                        .map((e) => DropdownMenuItem<String>(
+                            value: e.name, child: Text(e.name)))
+                        .toList();
+                    return DropDownMenu(playerName, "Select Player 1", items,
+                        (p) {
+                      setState(() {
+                        if (p != null) {
+                          playerName = p;
+                        }
+                      });
+                    });
+                  }),
+                  Container(
+                      padding: const EdgeInsets.all(10),
+                      child: const Text("VS")),
+                  FormField(builder: (state) {
+                    final items = badmintonData.players
+                        .map((e) => DropdownMenuItem<String>(
+                            value: e.name, child: Text(e.name)))
+                        .toList();
+                    return DropDownMenu(
+                        secondPlayerName, "Select Player 2", items, (p) {
+                      setState(() {
+                        if (p != null) {
+                          secondPlayerName = p;
+                        }
+                      });
+                    });
+                  }),
+                  const Divider(),
+                  // Text("Score"),
+                  FormField(builder: (state) {
+                    return TextField(
+                      maxLength: 2,
+                      controller: playerScore,
+                      decoration: InputDecoration(labelText: "Player 1 Score"),
+                    );
+                  }),
+                  Container(
+                      padding: const EdgeInsets.all(10),
+                      child: const Text("To")),
+                  FormField(builder: (state) {
+                    return TextField(
+                      maxLength: 2,
+                      controller: secondPlayerScore,
+                      decoration:
+                          const InputDecoration(labelText: "Player 2 Score"),
+                    );
+                  }),
+                ],
+              ),
+            ),
+            actions: [
+              MaterialButton(
+                onPressed: saveMatchData,
+                color: Colors.blue,
+                child:
+                    const Text("Save", style: TextStyle(color: Colors.white)),
+              ),
+              MaterialButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                color: Colors.blue,
+                child:
+                    const Text("Cancel", style: TextStyle(color: Colors.white)),
+              )
+            ],
+          );
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: addMatch,
+        tooltip: 'Add Match',
       body: ListView.builder(
           itemCount: badmintonData.matches.length,
           itemBuilder: (context, i) {
@@ -73,10 +180,6 @@ class _MyHomePageState extends State<MyHomePage> {
               onEditPressed: () {},
             );
           }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: addMatch,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
