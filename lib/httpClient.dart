@@ -11,14 +11,16 @@ final httpClient = HttpClient();
 Future<BadmintonData> getBadmintonData() async {
   final req = await httpClient.getUrl(Uri.parse(constants.githubJsonBaseUrl));
 
-  req.headers.set("User-Agent",
-      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.125 Safari/537.36 Vivaldi/5.3.2679.55");
-  req.headers.set("Accept", "application/json");
-
   final res = await req.close();
 
-  final badmintonData =
-      (await res.transform(utf8.decoder).join()).parseBadmintonData();
+  final jsonData = json.decode(await res.transform(utf8.decoder).join());
+
+  final String content = jsonData["content"];
+
+  final decodedData = String.fromCharCodes(base64Decode(content.replaceAll("\"", "")
+      .replaceAll("\\", "").replaceAll("\n", "")));
+
+  final badmintonData = decodedData.parseBadmintonData();
 
   return badmintonData;
 }
@@ -39,8 +41,6 @@ Future<String> fetchJsonSha() async {
 Future<void> updateBadmintonData(BadmintonData badmintonData) async {
   final sha = await fetchJsonSha();
 
-  // final req = await httpClient.open(
-  //     "PUT", "https", 443, constants.githubAPIUrl);
   final req = await httpClient.putUrl(Uri.parse(constants.githubAPIUrl));
 
   req.headers.set("Accept", constants.headers['Accept']!);
