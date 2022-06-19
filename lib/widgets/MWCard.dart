@@ -77,7 +77,7 @@ class MWCardState extends State<MWCard> with SingleTickerProviderStateMixin {
                   edgeInsets: const EdgeInsets.only(
                       left: 0, right: 8, bottom: 4, top: 4),
                   prefix: const Icon(Icons.person_sharp, size: 20),
-                  text: matchData.players.join(" VS "),
+                  text: matchData.players.length == 2 ? matchData.players.join(" VS ") : matchData.players.reduce((value, element) => "$value / $element "),
                   textStyle: primaryTextStyle(size: 14),
                 ),
                 TextIcon(
