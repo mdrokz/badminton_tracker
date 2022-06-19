@@ -7,11 +7,12 @@ Widget DropDownMenu<T>(String? value,String hint, List<DropdownMenuItem<String>>
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5.0))),
     child: DropdownButtonHideUnderline(
-      child: DropdownButton<String>(
+      child: DropdownButtonFormField<String>(
         hint: Text(hint),
         value: value,
         isDense: true,
         onChanged: onChanged,
+        onSaved: onChanged,
         items: items,
       ),
     ),
