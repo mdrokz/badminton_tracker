@@ -48,7 +48,6 @@ class MWCardState extends State<MWCard> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 195,
       child: Row(
         children: [
           Container(
