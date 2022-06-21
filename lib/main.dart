@@ -1,4 +1,10 @@
+import 'package:badminton_tracker/httpClient.dart';
+import 'package:badminton_tracker/types/badminton.dart';
+import 'package:badminton_tracker/widgets.dart';
+import 'package:badminton_tracker/widgets/MWCard.dart';
 import 'package:flutter/material.dart';
+
+import 'constants.dart' as constants;
 
 void main() {
   runApp(const MyApp());
@@ -11,35 +17,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Badminton Tracker',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Badminton Tracker'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 
@@ -48,66 +36,319 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  late BadmintonData badmintonData;
+  bool isFetching = true;
+  String? playerName;
+  String? secondPlayerName;
 
-  void _incrementCounter() {
+  String? thirdPlayerName;
+  String? fourthPlayerName;
+
+  String? matchType;
+
+  final playerScore = TextEditingController();
+  final secondPlayerScore = TextEditingController();
+
+  Future<void> fetchBadmintonData() async {
+    final data = await getBadmintonData();
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      badmintonData = data;
+      isFetching = false;
     });
+  }
+
+  Future<void> init() async {
+    await fetchBadmintonData();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    init();
+  }
+
+  void saveMatchData() async {
+    setState(() {
+      final p = playerName;
+      final p2 = secondPlayerName;
+      final p3 = thirdPlayerName;
+      final p4 = fourthPlayerName;
+
+      if (p3 != null && p4 != null) {
+        if (p != null && p2 != null) {
+          badmintonData.matches.add(Match(
+              date: DateTime.now(),
+              players: [p, p2, p3, p4],
+              score:
+                  "${playerScore.value.text} - ${secondPlayerScore.value.text}"));
+        }
+      } else if (p != null && p2 != null) {
+        badmintonData.matches.add(Match(
+            date: DateTime.now(),
+            players: [p, p2],
+            score:
+                "${playerScore.value.text} - ${secondPlayerScore.value.text}"));
+      }
+    });
+    await updateBadmintonData(badmintonData);
+    if (!mounted) return;
+    Navigator.of(context).pop();
+    await fetchBadmintonData();
+  }
+
+  List<Widget> doublesDialog() {
+    return [
+      Row(
+        children: [
+          Expanded(
+            child: FormField(builder: (state) {
+              final items = badmintonData.players
+                  .map((e) => DropdownMenuItem<String>(
+                      value: e.name,
+                      child: Text(
+                        e.name,
+                        overflow: TextOverflow.ellipsis,
+                      )))
+                  .toList();
+              return DropDownMenu(playerName, "Player 1", items, (p) {
+                setState(() {
+                  if (p != null) {
+                    playerName = p;
+                  }
+                });
+              });
+            }),
+          ),
+          Expanded(child: FormField(builder: (state) {
+            final items = badmintonData.players
+                .map((e) => DropdownMenuItem<String>(
+                    value: e.name,
+                    child: Text(
+                      e.name,
+                      overflow: TextOverflow.ellipsis,
+                    )))
+                .toList();
+            return DropDownMenu(secondPlayerName, "Player 2", items, (p) {
+              setState(() {
+                if (p != null) {
+                  secondPlayerName = p;
+                }
+              });
+            });
+          }))
+        ],
+      ),
+      Container(padding: const EdgeInsets.all(10), child: const Text("VS")),
+      Row(children: [
+        Expanded(
+          child: FormField(builder: (state) {
+            final items = badmintonData.players
+                .map((e) => DropdownMenuItem<String>(
+                    value: e.name,
+                    child: Text(
+                      e.name,
+                      overflow: TextOverflow.ellipsis,
+                    )))
+                .toList();
+            return DropDownMenu(thirdPlayerName, "Player 3", items, (p) {
+              setState(() {
+                if (p != null) {
+                  thirdPlayerName = p;
+                }
+              });
+            });
+          }),
+        ),
+        Expanded(child: FormField(builder: (state) {
+          final items = badmintonData.players
+              .map((e) => DropdownMenuItem<String>(
+                  value: e.name,
+                  child: Text(
+                    e.name,
+                    overflow: TextOverflow.ellipsis,
+                  )))
+              .toList();
+          return DropDownMenu(fourthPlayerName, "Player 4", items, (p) {
+            setState(() {
+              if (p != null) {
+                fourthPlayerName = p;
+              }
+            });
+          });
+        }))
+      ]),
+    ];
+  }
+
+  List<Widget> singlesDialog() {
+    return [
+      FormField(builder: (state) {
+        final items = badmintonData.players
+            .map((e) => DropdownMenuItem<String>(
+                value: e.name,
+                child: Text(
+                  e.name,
+                  overflow: TextOverflow.ellipsis,
+                )))
+            .toList();
+        return DropDownMenu(playerName, "Select Player 1", items, (p) {
+          setState(() {
+            if (p != null) {
+              playerName = p;
+            }
+          });
+        });
+      }),
+      Container(padding: const EdgeInsets.all(10), child: const Text("VS")),
+      FormField(builder: (state) {
+        final items = badmintonData.players
+            .map((e) => DropdownMenuItem<String>(
+                value: e.name,
+                child: Text(
+                  e.name,
+                  overflow: TextOverflow.ellipsis,
+                )))
+            .toList();
+        return DropDownMenu(secondPlayerName, "Select Player 2", items, (p) {
+          setState(() {
+            if (p != null) {
+              secondPlayerName = p;
+            }
+          });
+        });
+      }),
+    ];
+  }
+
+  void addMatch() {
+    showDialog(
+        context: context,
+        builder: (bc) {
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("Add new match"),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    FormField(builder: (state) {
+                      final items = constants.matchTypes
+                          .map((e) => DropdownMenuItem<String>(
+                              value: e, child: Text(e)))
+                          .toList();
+                      return DropDownMenu(matchType, "Select Match Type", items,
+                          (p) {
+                        setState(() {
+                          if (p != null) {
+                            matchType = p;
+                          }
+                        });
+                      });
+                    }),
+                    const Divider(),
+                    if (matchType == 'Singles')
+                      ...singlesDialog()
+                    else if (matchType == 'Doubles')
+                      ...doublesDialog(),
+                    // const Divider(),
+                    // Text("Score"),
+                    Row(
+                      children: [
+                        SizedBox(
+                            width: 100,
+                            child: TextFormField(
+                              maxLength: 2,
+                              validator: (value) {
+                                if (value != null) {
+                                  final s = int.tryParse(value);
+                                  return value.isNotEmpty
+                                      ? s != null
+                                          ? null
+                                          : "Enter valid score"
+                                      : "Enter Player 1 Score";
+                                }
+                              },
+                              controller: playerScore,
+                              decoration: const InputDecoration(
+                                  labelText: "Player 1 Score"),
+                            )),
+                        Container(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                            child: const Text(
+                              "/",
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.grey),
+                            )),
+                        SizedBox(
+                            width: 100,
+                            child: TextFormField(
+                              maxLength: 2,
+                              validator: (value) {
+                                if (value != null) {
+                                  final s = int.tryParse(value);
+                                  return value.isNotEmpty
+                                      ? s != null
+                                          ? null
+                                          : "Enter valid score"
+                                      : "Enter Player 2 Score";
+                                }
+                              },
+                              controller: secondPlayerScore,
+                              decoration: const InputDecoration(
+                                  labelText: "Player 2 Score"),
+                            ))
+                      ],
+                    )
+                  ],
+                ),
+              ),
+              actions: [
+                MaterialButton(
+                  onPressed: saveMatchData,
+                  color: Colors.blue,
+                  child:
+                      const Text("Save", style: TextStyle(color: Colors.white)),
+                ),
+                MaterialButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  color: Colors.blue,
+                  child: const Text("Cancel",
+                      style: TextStyle(color: Colors.white)),
+                )
+              ],
+            );
+          });
+        });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
+        child: !isFetching
+            ? ListView.builder(
+                itemCount: badmintonData.matches.length,
+                itemBuilder: (context, i) {
+                  return MWCard(
+                    matchData: badmintonData.matches[i],
+                    onDeletePressed: () async {
+                      setState(() {
+                        badmintonData.matches.removeAt(i);
+                      });
+                      await updateBadmintonData(badmintonData);
+                    },
+                    onEditPressed: () {},
+                  );
+                })
+            : const CircularProgressIndicator(),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
+        onPressed: addMatch,
+        tooltip: 'Add Match',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
