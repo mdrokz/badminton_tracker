@@ -98,61 +98,67 @@ class _MyHomePageState extends State<MyHomePage> {
 
   List<Widget> doublesDialog() {
     return [
-      Row(children: [
-        Expanded(child: FormField(builder: (state) {
-          final items = badmintonData.players
-              .map((e) => DropdownMenuItem<String>(
-                  value: e.name,
-                  child: Text(
-                    e.name,
-                    overflow: TextOverflow.ellipsis,
-                  )))
-              .toList();
-          return DropDownMenu(playerName, "Player 1", items, (p) {
-            setState(() {
-              if (p != null) {
-                playerName = p;
-              }
+      Row(
+        children: [
+          Expanded(
+            child: FormField(builder: (state) {
+              final items = badmintonData.players
+                  .map((e) => DropdownMenuItem<String>(
+                      value: e.name,
+                      child: Text(
+                        e.name,
+                        overflow: TextOverflow.ellipsis,
+                      )))
+                  .toList();
+              return DropDownMenu(playerName, "Player 1", items, (p) {
+                setState(() {
+                  if (p != null) {
+                    playerName = p;
+                  }
+                });
+              });
+            }),
+          ),
+          Expanded(child: FormField(builder: (state) {
+            final items = badmintonData.players
+                .map((e) => DropdownMenuItem<String>(
+                    value: e.name,
+                    child: Text(
+                      e.name,
+                      overflow: TextOverflow.ellipsis,
+                    )))
+                .toList();
+            return DropDownMenu(secondPlayerName, "Player 2", items, (p) {
+              setState(() {
+                if (p != null) {
+                  secondPlayerName = p;
+                }
+              });
             });
-          });
-        })),
-        Expanded(child: FormField(builder: (state) {
-          final items = badmintonData.players
-              .map((e) => DropdownMenuItem<String>(
-                  value: e.name,
-                  child: Text(
-                    e.name,
-                    overflow: TextOverflow.ellipsis,
-                  )))
-              .toList();
-          return DropDownMenu(secondPlayerName, "Player 2", items, (p) {
-            setState(() {
-              if (p != null) {
-                secondPlayerName = p;
-              }
-            });
-          });
-        }))
-      ]),
+          }))
+        ],
+      ),
       Container(padding: const EdgeInsets.all(10), child: const Text("VS")),
       Row(children: [
-        Expanded(child: FormField(builder: (state) {
-          final items = badmintonData.players
-              .map((e) => DropdownMenuItem<String>(
-                  value: e.name,
-                  child: Text(
-                    e.name,
-                    overflow: TextOverflow.ellipsis,
-                  )))
-              .toList();
-          return DropDownMenu(thirdPlayerName, "Player 3", items, (p) {
-            setState(() {
-              if (p != null) {
-                thirdPlayerName = p;
-              }
+        Expanded(
+          child: FormField(builder: (state) {
+            final items = badmintonData.players
+                .map((e) => DropdownMenuItem<String>(
+                    value: e.name,
+                    child: Text(
+                      e.name,
+                      overflow: TextOverflow.ellipsis,
+                    )))
+                .toList();
+            return DropDownMenu(thirdPlayerName, "Player 3", items, (p) {
+              setState(() {
+                if (p != null) {
+                  thirdPlayerName = p;
+                }
+              });
             });
-          });
-        })),
+          }),
+        ),
         Expanded(child: FormField(builder: (state) {
           final items = badmintonData.players
               .map((e) => DropdownMenuItem<String>(
@@ -218,99 +224,101 @@ class _MyHomePageState extends State<MyHomePage> {
     showDialog(
         context: context,
         builder: (bc) {
-          return AlertDialog(
-            title: const Text("Add new match"),
-            content: SizedBox(
-              height: 400,
-              child: Column(
-                children: [
-                  FormField(builder: (state) {
-                    final items = constants.matchTypes
-                        .map((e) =>
-                            DropdownMenuItem<String>(value: e, child: Text(e)))
-                        .toList();
-                    return DropDownMenu(matchType, "Select Match Type", items,
-                        (p) {
-                      setState(() {
-                        if (p != null) {
-                          matchType = p;
-                        }
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("Add new match"),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    FormField(builder: (state) {
+                      final items = constants.matchTypes
+                          .map((e) => DropdownMenuItem<String>(
+                              value: e, child: Text(e)))
+                          .toList();
+                      return DropDownMenu(matchType, "Select Match Type", items,
+                          (p) {
+                        setState(() {
+                          if (p != null) {
+                            matchType = p;
+                          }
+                        });
                       });
-                    });
-                  }),
-                  const Divider(),
-                  if (matchType == 'Singles')
-                    ...singlesDialog()
-                  else if (matchType == 'Doubles')
-                    ...doublesDialog(),
-                  // const Divider(),
-                  // Text("Score"),
-                  Row(
-                    children: [
-                      SizedBox(
-                          width: 100,
-                          child: TextFormField(
-                            maxLength: 2,
-                            validator: (value) {
-                              if (value != null) {
-                                final s = int.tryParse(value);
-                                return value.isNotEmpty
-                                    ? s != null
-                                        ? null
-                                        : "Enter valid score"
-                                    : "Enter Player 1 Score";
-                              }
-                            },
-                            controller: playerScore,
-                            decoration: const InputDecoration(
-                                labelText: "Player 1 Score"),
-                          )),
-                      Container(
-                          padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                          child: const Text(
-                            "/",
-                            style: TextStyle(fontSize: 20, color: Colors.grey),
-                          )),
-                      SizedBox(
-                          width: 100,
-                          child: TextFormField(
-                            maxLength: 2,
-                            validator: (value) {
-                              if (value != null) {
-                                final s = int.tryParse(value);
-                                return value.isNotEmpty
-                                    ? s != null
-                                        ? null
-                                        : "Enter valid score"
-                                    : "Enter Player 2 Score";
-                              }
-                            },
-                            controller: secondPlayerScore,
-                            decoration: const InputDecoration(
-                                labelText: "Player 2 Score"),
-                          ))
-                    ],
-                  )
-                ],
+                    }),
+                    const Divider(),
+                    if (matchType == 'Singles')
+                      ...singlesDialog()
+                    else if (matchType == 'Doubles')
+                      ...doublesDialog(),
+                    // const Divider(),
+                    // Text("Score"),
+                    Row(
+                      children: [
+                        SizedBox(
+                            width: 100,
+                            child: TextFormField(
+                              maxLength: 2,
+                              validator: (value) {
+                                if (value != null) {
+                                  final s = int.tryParse(value);
+                                  return value.isNotEmpty
+                                      ? s != null
+                                          ? null
+                                          : "Enter valid score"
+                                      : "Enter Player 1 Score";
+                                }
+                              },
+                              controller: playerScore,
+                              decoration: const InputDecoration(
+                                  labelText: "Player 1 Score"),
+                            )),
+                        Container(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                            child: const Text(
+                              "/",
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.grey),
+                            )),
+                        SizedBox(
+                            width: 100,
+                            child: TextFormField(
+                              maxLength: 2,
+                              validator: (value) {
+                                if (value != null) {
+                                  final s = int.tryParse(value);
+                                  return value.isNotEmpty
+                                      ? s != null
+                                          ? null
+                                          : "Enter valid score"
+                                      : "Enter Player 2 Score";
+                                }
+                              },
+                              controller: secondPlayerScore,
+                              decoration: const InputDecoration(
+                                  labelText: "Player 2 Score"),
+                            ))
+                      ],
+                    )
+                  ],
+                ),
               ),
-            ),
-            actions: [
-              MaterialButton(
-                onPressed: saveMatchData,
-                color: Colors.blue,
-                child:
-                    const Text("Save", style: TextStyle(color: Colors.white)),
-              ),
-              MaterialButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                color: Colors.blue,
-                child:
-                    const Text("Cancel", style: TextStyle(color: Colors.white)),
-              )
-            ],
-          );
+              actions: [
+                MaterialButton(
+                  onPressed: saveMatchData,
+                  color: Colors.blue,
+                  child:
+                      const Text("Save", style: TextStyle(color: Colors.white)),
+                ),
+                MaterialButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  color: Colors.blue,
+                  child: const Text("Cancel",
+                      style: TextStyle(color: Colors.white)),
+                )
+              ],
+            );
+          });
         });
   }
 
