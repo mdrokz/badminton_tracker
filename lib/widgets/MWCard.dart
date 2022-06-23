@@ -52,7 +52,9 @@ class MWCardState extends State<MWCard> with SingleTickerProviderStateMixin {
         children: [
           Container(
             padding: const EdgeInsets.all(16),
+            margin: const EdgeInsets.fromLTRB(10,10,0,10),
             decoration: BoxDecoration(
+              border: Border.all(color: Colors.blue),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 bottomLeft: Radius.circular(16),
@@ -92,10 +94,10 @@ class MWCardState extends State<MWCard> with SingleTickerProviderStateMixin {
           Container(
             width: 60,
             decoration: const BoxDecoration(
-              // borderRadius: BorderRadius.only(
-              //   topRight: Radius.circular(16),
-              //   bottomRight: Radius.circular(16),
-              // ),
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(16),
+                bottomRight: Radius.circular(16),
+              ),
               color: Colors.blueAccent,
             ),
             child: Column(
