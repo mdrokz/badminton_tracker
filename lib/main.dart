@@ -1,13 +1,34 @@
+import 'dart:async';
+
 import 'package:badminton_tracker/httpClient.dart';
 import 'package:badminton_tracker/types/badminton.dart';
 import 'package:badminton_tracker/widgets.dart';
 import 'package:badminton_tracker/widgets/MWCard.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:nb_utils/nb_utils.dart';
 
 import 'constants.dart' as constants;
 
 void main() {
   runApp(const MyApp());
+  configLoading();
+}
+
+void configLoading() {
+  EasyLoading.instance
+    ..displayDuration = const Duration(milliseconds: 2000)
+    ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+    ..loadingStyle = EasyLoadingStyle.dark
+    ..indicatorSize = 45.0
+    ..radius = 10.0
+    ..progressColor = Colors.yellow
+    ..backgroundColor = Colors.green
+    ..indicatorColor = Colors.yellow
+    ..textColor = Colors.yellow
+    ..maskColor = Colors.blue.withOpacity(0.5)
+    ..userInteractions = true
+    ..dismissOnTap = false;
 }
 
 class MyApp extends StatelessWidget {
@@ -22,6 +43,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'Badminton Tracker'),
+      builder: EasyLoading.init(),
     );
   }
 }
@@ -49,6 +71,9 @@ class _MyHomePageState extends State<MyHomePage> {
   final playerScore = TextEditingController();
   final secondPlayerScore = TextEditingController();
 
+  Timer? _timer;
+  late double _progress;
+
   Future<void> fetchBadmintonData() async {
     final data = await getBadmintonData();
     setState(() {
@@ -66,6 +91,8 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     init();
   }
+
+
 
   void saveMatchData() async {
     setState(() {
@@ -91,9 +118,26 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     });
     await updateBadmintonData(badmintonData);
+    reset();
+    EasyLoading.addStatusCallback((status) {
+      if (status == EasyLoadingStatus.dismiss) {
+        _timer?.cancel();
+      }
+    });
     if (!mounted) return;
     Navigator.of(context).pop();
     await fetchBadmintonData();
+    EasyLoading.showSuccess('Record Added');
+  }
+
+  void reset() {
+    playerScore.clear();
+    secondPlayerScore.clear();
+    matchType=null;
+    playerName=null;
+    secondPlayerName=null;
+    thirdPlayerName=null;
+    fourthPlayerName=null;
   }
 
   List<Widget> doublesDialog() {
@@ -331,6 +375,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: !isFetching
             ? ListView.builder(
+                padding: const EdgeInsets.fromLTRB(10,10,10,10),
                 itemCount: badmintonData.matches.length,
                 itemBuilder: (context, i) {
                   return MWCard(
@@ -347,10 +392,16 @@ class _MyHomePageState extends State<MyHomePage> {
             : const CircularProgressIndicator(),
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: transparentColor,
         onPressed: addMatch,
         tooltip: 'Add Match',
+        foregroundColor: Colors.blue,
+        elevation: 1,
         child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+
+
 }
